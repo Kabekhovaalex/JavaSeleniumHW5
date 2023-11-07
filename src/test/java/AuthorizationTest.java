@@ -14,12 +14,12 @@ import java.util.concurrent.TimeUnit;
 
 public class AuthorizationTest {
     private final String BASE_URL = System.getProperty("base.url", "https://otus.ru");
-//    private final String LOGIN = System.getProperty("login");
-//    private final String PASSWORD = System.getProperty("password");//mvn clean test -Dpassword=12345 -Dlogin=test
-//    mvn clean test -DforkCount=0 -Dlogin=diveroj856@htoal.com -Dpassword=!Diveroj856
+    private final String LOGIN = System.getProperty("login");
+    private final String PASSWORD = System.getProperty("password");
+
 //mvn clean test  -Dlogin=diveroj856@htoal.com -Dpassword=!Diveroj856
-    private String LOGIN = "diveroj856@htoal.com";
-    private String PASSWORD = "!Diveroj856";
+//    private String LOGIN = "diveroj856@htoal.com";
+//    private String PASSWORD = "!Diveroj856";
     private WebDriver driver;
     private Actions actions;
     private Waiters waiters;
