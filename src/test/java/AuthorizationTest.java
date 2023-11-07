@@ -4,24 +4,25 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import waiters.Waiters;
-
-
 import java.util.concurrent.TimeUnit;
 
 
 public class AuthorizationTest {
     private final String BASE_URL = System.getProperty("base.url", "https://otus.ru");
-    //    private final String PASSWORD = System.getProperty("password");//mvn clean test -Dpassword=12345 -Dlogin=test
 //    private final String LOGIN = System.getProperty("login");
-    private String login = "diveroj856@htoal.com";
-    private String password = "!Diveroj856";
+//    private final String PASSWORD = System.getProperty("password");//mvn clean test -Dpassword=12345 -Dlogin=test
+//    mvn clean test -DforkCount=0 -Dlogin=diveroj856@htoal.com -Dpassword=!Diveroj856
+//mvn clean test  -Dlogin=diveroj856@htoal.com -Dpassword=!Diveroj856
+    private String LOGIN = "diveroj856@htoal.com";
+    private String PASSWORD = "!Diveroj856";
     private WebDriver driver;
     private Actions actions;
-    Waiters waiters;
+    private Waiters waiters;
     private final Logger log = LogManager.getLogger(AuthorizationTest.class);
 
     @BeforeAll
@@ -61,9 +62,6 @@ public class AuthorizationTest {
         addOther();
 //        Опыт разработки
         addDevelopmentExperience();
-//        Нажать сохранить
-        driver.findElement(By.cssSelector("button[title=\"Сохранить и заполнить позже\"]")).submit();
-        log.info("Сохранение страницы");
 
 //        Открыть https://otus.ru в “чистом браузере”
         shutdown();
@@ -75,13 +73,15 @@ public class AuthorizationTest {
         enterLK();
 //        Проверить, что в разделе "О себе" отображаются указанны ранее данные
         assertionsLK();
-
     }
 
     private void loginInOtus() {
+        waiters.waitElementVisible(By.cssSelector(".sc-mrx253-0.enxKCy.sc-945rct-0.iOoJwQ"));
         driver.findElement(By.cssSelector(".sc-mrx253-0.enxKCy.sc-945rct-0.iOoJwQ")).click();
-        clearAndEnter(By.cssSelector("input[name=\"email\"]"), login);
-        clearAndEnter(By.cssSelector("input[type=\"password\"]"), password);
+        driver.findElement(By.cssSelector(".hGvqzc > .sc-1ij08sq-0")).click();
+        clearAndEnter(By.xpath("//input[contains(@name,'email')]"), LOGIN);
+        driver.findElement(By.cssSelector(".sc-177u1yy-0")).click();
+        clearAndEnter(By.cssSelector("input[type=\"password\"]"), PASSWORD);
         driver.findElement(By.xpath("//div[contains(text(),'Войти')]")).click();
         log.info("Авторизация на сайте");
     }
@@ -93,7 +93,7 @@ public class AuthorizationTest {
 
     private void enterLK() {
         actions = new Actions(driver);
-        //WebElement elProfile = driver.findElement(By.xpath("(//section/div[.//img[contains(@src, 'next/')] or .//img[contains(@src, 'cdn.otus.ru')][not(@alt)]] | //div[@data-name='user-info'][contains(@class, 'popup-trigger')])"));
+
         WebElement elProfile = driver.findElement(By.cssSelector(".sc-199a3eq-0.fJMWHf"));
         waiters.waitElementVisible(elProfile);
         actions.moveToElement(elProfile).perform();
@@ -118,7 +118,7 @@ public class AuthorizationTest {
         clearAndEnter(By.id("id_lname_latin"), "Kulikova");
         clearAndEnter(By.id("id_blog_name"), "Sandre");
 
-        //       День рождения
+//               День рождения
         clearAndEnter(By.name("date_of_birth"), "10.10.1990");
 
 //        Выбор города
@@ -130,42 +130,34 @@ public class AuthorizationTest {
         driver.findElement(By.xpath("//button[contains(@title,'Начальный уровень (Beginner)')]")).click();
 
 //       Готовность к переезду
-        WebElement elMoving = driver.findElement(By.xpath("//span[contains(text(),'Да')]"));
+        WebElement elMoving = driver.findElement(By.xpath("//input[contains(@id,'id_ready_to_relocate_1')]"));
         if (!elMoving.isSelected()) {
-            elMoving.click();
+            driver.findElement(By.xpath("//span[contains(text(),'Да')]")).click();
         }
 
-        ////        Полный день
-        //driver.findElement(By.xpath("//input[@title='Полный день']/../..")).isSelected();
-        WebElement elFullDay = driver.findElement(By.xpath("//input[@title='Полный день']/../.."));
-        //WebElement elFullDay = driver.findElement(By.xpath("//input[contains(@title,'Полный день')]/following::span[contains(@class, 'checkbox__label lk-cv-block__text lk-cv-block__text_work-schedule')]"));
-
-        boolean a = elFullDay.isSelected(); // isSelected возвращает все время false
-        if (a) {
-            elFullDay.click();
-
+//             Полный день
+        WebElement elFullDay = driver.findElement(By.xpath("//input[@title='Полный день']"));
+        if (!elFullDay.isSelected()) {
+            driver.findElement(By.xpath("//span[contains(text(), 'Полный день')]")).click();
         }
 
-
-//       Гибкий график
-        //driver.findElement(By.xpath("//input[@title='Гибкий график']/../..")).isSelected();
-        WebElement elflexiblesSchedule = driver.findElement(By.xpath("//input[@title='Гибкий график']/../.."));
-        boolean a1 = elflexiblesSchedule.isSelected();
-        if (a1) {
-            elflexiblesSchedule.click();
+//              Гибкий график
+        WebElement elflexiblesSchedule = driver.findElement(By.xpath("//input[@title = 'Гибкий график']"));
+        if (!elflexiblesSchedule.isSelected()) {
+            driver.findElement(By.xpath("//span[contains(text(), 'Гибкий график')]")).click();
         }
 
 //         Удаленно
-        //driver.findElement(By.xpath("//input[@title='Удаленно']/../..")).isSelected();
-        WebElement elDist = driver.findElement(By.xpath("//input[@title='Удаленно']/../.."));
-        if (elDist.isSelected()) {
-            elDist.click();
-            log.info("Добавление пользовательских данных");
+        WebElement elDist = driver.findElement(By.xpath("//input[@title = 'Удаленно']"));
+        if (!elDist.isSelected()) {
+            driver.findElement(By.xpath("//span[contains(text(), 'Удаленно')]")).click();
+
         }
+        log.info("Добавление пользовательских данных");
     }
 
     private void addContacts() {
-
+        deleteContacts();
         driver.findElement(By.xpath("//span[@class='placeholder']")).click();
         driver.findElement(By.cssSelector("div[class='lk-cv-block__select-options lk-cv-block__select-options_left js-custom-select-options-container'] button[title='VK']")).click();
         clearAndEnter(By.id("id_contact-0-value"), "https://vk.com/kulikova_alex");
@@ -173,15 +165,37 @@ public class AuthorizationTest {
         driver.findElement(By.xpath("//span[@class='placeholder']")).click();
         driver.findElement(By.cssSelector("div[class='lk-cv-block__select-options lk-cv-block__select-options_left js-custom-select-options-container'] button[title='Тelegram']")).click();
         clearAndEnter(By.id("id_contact-1-value"), "@Sandre");
-
         log.info("Добавление основной информации");
-
-        //driver.findElement(By.cssSelector("button[title=\"Сохранить и заполнить позже\"]")).submit();
-        //driver.findElement(By.xpath("//div[@class='nav-sidebar']//a[@title='Персональные данные']")).click();
     }
-//private void deleteContacts() {
-//    div.js-formset-row:nth-child(1) > div:nth-child(4) > div:nth-child(2) > button:nth-child(1)
-//}
+
+    private void deleteContacts() {
+        int i = 1;
+        do {
+            String strSelector = "div.js-formset-row:nth-child(" + i + ") > div:nth-child(4) > div:nth-child(2) > button:nth-child(1)";
+//        log.info("  Контакты для удаления найдены =  ");
+//        log.info(strSelector);
+            if (!isDisplayed(By.cssSelector(strSelector))) {
+                break;
+            } else {
+//            log.info(" Отображаются контакты =  ");
+//            log.info(isDisplayed(By.cssSelector(strSelector)));
+                driver.findElement(By.cssSelector(strSelector)).click();
+            }
+            i++;
+        } while (i < 20);
+        driver.findElement(By.xpath("//button[contains(@title,'Сохранить и продолжить')]")).submit();
+        driver.findElement(By.xpath("//div[@class='nav-sidebar']//a[@title='Персональные данные']")).click();
+
+    }
+
+    boolean isDisplayed(By by) {
+        try {
+            return driver.findElement(by).isDisplayed();
+        } catch (NoSuchElementException e) {
+            return false;
+        }
+    }
+
     private void addOther() {
         // Пол
         if (!(driver.findElement(By.xpath("//div[@class='select select_full']")).isSelected())) {
@@ -189,18 +203,38 @@ public class AuthorizationTest {
         }
         clearAndEnter(By.id("id_company"), "MaxFactor");
         clearAndEnter(By.id("id_work"), "Team lead");
-
         log.info("Добавление другой информации");
     }
 
     private void addDevelopmentExperience() {
+        deleteDevelopmentExperience();
         driver.findElement(By.cssSelector("a[title='Добавить']")).click();
         driver.findElement(By.cssSelector("#id_experience-0-experience")).click();
         driver.findElement(By.cssSelector("#id_experience-0-experience > option:nth-child(3)")).click();
         driver.findElement(By.cssSelector("#id_experience-0-level > option:nth-child(1)")).click();
         log.info("Добавление информации об опыте разработки");
+//        Нажать сохранить
+        driver.findElement(By.cssSelector("button[title=\"Сохранить и заполнить позже\"]")).submit();
+        log.info("Сохранение страницы");
     }
-
+    private void deleteDevelopmentExperience() {
+        int i = 1;
+        do {
+            String strSelector = "div:nth-child(" + i + ") > div.experience-row__remove.ic-close.js-formset-delete";
+//        log.info("  Контакты для удаления найдены =  ");
+//        log.info(strSelector);
+            if (!isDisplayed(By.cssSelector(strSelector))) {
+                break;
+            } else {
+//            log.info(" Отображаются контакты =  ");
+//            log.info(isDisplayed(By.cssSelector(strSelector)));
+                driver.findElement(By.cssSelector(strSelector)).click();
+            }
+            i++;
+        } while (i < 20);
+        driver.findElement(By.xpath("//button[contains(@title,'Сохранить и продолжить')]")).submit();
+        driver.findElement(By.xpath("//div[@class='nav-sidebar']//a[@title='Персональные данные']")).click();
+    }
     private void assertionsLK() {
         Assertions.assertEquals("Александра", driver.findElement(By.id("id_fname")).getAttribute("value"));
         Assertions.assertEquals("Куликова", driver.findElement(By.id("id_lname")).getAttribute("value"));
@@ -208,15 +242,30 @@ public class AuthorizationTest {
         Assertions.assertEquals("Kulikova", driver.findElement(By.id("id_lname_latin")).getAttribute("value"));
         Assertions.assertEquals("Sandre", driver.findElement(By.id("id_blog_name")).getAttribute("value"));
         Assertions.assertEquals("10.10.1990", driver.findElement(By.name("date_of_birth")).getAttribute("value"));
-
-
-        Assertions.assertEquals("Россия", driver.findElement(By.cssSelector(".select.lk-cv-block__input.lk-cv-block__input_full.js-lk-cv-dependent-master.js-lk-cv-custom-select"))
-                .getAttribute("value"));
-        Assertions.assertEquals("Астрахань",driver.findElement(By.cssSelector(".select.lk-cv-block__input.lk-cv-block__input_full.js-lk-cv-dependent-slave-city.js-lk-cv-custom-select"))
-                .getAttribute("value"));
+        Assertions.assertEquals("Россия", driver.findElement(By.xpath("//button[contains(@title, 'Россия')]"))
+                .getAttribute("title"), "Страна не совпадает");
+        Assertions.assertEquals("Астрахань", driver.findElement(By.xpath("//button[contains(@title, 'Астрахань')]"))
+                .getAttribute("title"), "Город не совпадает");
         Assertions.assertEquals("Начальный уровень (Beginner)", driver.findElement(By.xpath("//button[contains(@title,'Начальный уровень (Beginner)')]"))
-                .getAttribute("value"));
+                .getAttribute("title"));
+        Assertions.assertTrue(driver.findElement(By.xpath("//input[contains(@id,'id_ready_to_relocate_1')]")).isSelected(), "Готовность к переезду не совпадает");
+        Assertions.assertTrue(driver.findElement(By.xpath("//input[@title='Полный день']")).isSelected(), "Полный день не совпадает");
+        Assertions.assertTrue(driver.findElement(By.xpath("//input[@title = 'Гибкий график']")).isSelected(), "Гибкий график не совпадает");
+        Assertions.assertTrue(driver.findElement(By.xpath("//input[@title = 'Удаленно']")).isSelected(), "Удаленно не совпадает");
+        Assertions.assertEquals("diveroj856@htoal.com", driver.findElement(By.xpath("//input[contains(@name,'email')]")).getAttribute("value"), "Email не совпадает");
+        Assertions.assertEquals("diveroj856@htoal.com", driver.findElement(By.xpath("//input[contains(@name,'email')]")).getAttribute("value"), "Email не совпадает");
 
+        Assertions.assertTrue(
+                "https://vk.com/kulikova_alex".equals(driver.findElement(By.id("id_contact-0-value")).getAttribute("value")) ||
+                        "https://vk.com/kulikova_alex".equals(driver.findElement(By.id("id_contact-1-value")).getAttribute("value")), "Контактная информация указанна неверно");
+        Assertions.assertTrue(
+                "@Sandre".equals(driver.findElement(By.id("id_contact-0-value")).getAttribute("value")) ||
+                        "@Sandre".equals(driver.findElement(By.id("id_contact-1-value")).getAttribute("value")), "Контактная информация указанна неверно");
+        Assertions.assertEquals("f", driver.findElement(By.xpath("//option[@value='f']")).getAttribute("value"), "Пол не совпадает");
+        Assertions.assertEquals("MaxFactor", driver.findElement(By.id("id_company")).getAttribute("value"), "Компания не совпадает");
+        Assertions.assertEquals("Team lead", driver.findElement(By.id("id_work")).getAttribute("value"), "Должность не совпадает");
+        Assertions.assertTrue(driver.findElement(By.cssSelector("#id_experience-0-experience > option:nth-child(3)")).isSelected(), "Язык не совпадает");
+        Assertions.assertEquals("Только начал", driver.findElement(By.cssSelector("#id_experience-0-level > option:nth-child(1)")).getText(), "Опыт не совпадает");
         log.info("В разделе о себе отображаются указанные ранее данные");
     }
 }
