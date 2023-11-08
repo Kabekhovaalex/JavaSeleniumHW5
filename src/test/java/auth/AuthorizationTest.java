@@ -1,3 +1,5 @@
+package auth;
+
 import factory.WebDriverFactory;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.logging.log4j.LogManager;
@@ -8,6 +10,7 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import waiters.Waiters;
 import java.util.concurrent.TimeUnit;
 
@@ -17,12 +20,13 @@ public class AuthorizationTest {
     private final String LOGIN = System.getProperty("login");
     private final String PASSWORD = System.getProperty("password");
 
-//mvn clean test  -Dlogin=diveroj856@htoal.com -Dpassword=!Diveroj856
-//    private String LOGIN = "diveroj856@htoal.com";
-//    private String PASSWORD = "!Diveroj856";
+//mvn clean test  -Dlogin="yadaci9405@othao.com" -Dpassword=!Yadaci9405
+//    private String LOGIN = "yadaci9405@othao.com";
+//    private String PASSWORD = "!Yadaci9405";
     private WebDriver driver;
     private Actions actions;
     private Waiters waiters;
+    private Waiters cityWaiters;
     private final Logger log = LogManager.getLogger(AuthorizationTest.class);
 
     @BeforeAll
@@ -108,9 +112,11 @@ public class AuthorizationTest {
     private void addPersonalInformation() {
         //Имя
         clearAndEnter(By.id("id_fname"), "Александра");
-//        Выбор страны
-        driver.findElement(By.cssSelector(".select.lk-cv-block__input.lk-cv-block__input_full.js-lk-cv-dependent-master.js-lk-cv-custom-select")).click();
-        driver.findElement(By.cssSelector("button[title='Россия']")).click();
+////        Выбор страны
+//        driver.findElement(By.cssSelector(".select.lk-cv-block__input.lk-cv-block__input_full.js-lk-cv-dependent-master.js-lk-cv-custom-select")).click();
+//        driver.findElement(By.cssSelector("button[title='Россия']")).click();
+//        WebElement cityDropdownElement = driver.findElement(By.cssSelector(".select.lk-cv-block__input.lk-cv-block__input_full.js-lk-cv-dependent-slave-city.js-lk-cv-custom-select"));
+//        waiters.waitForCondition(ExpectedConditions.not(ExpectedConditions.attributeToBe(cityDropdownElement,"disabled","disabled")));
 
 //        Имя, фамилия
         clearAndEnter(By.id("id_lname"), "Куликова");
@@ -121,8 +127,16 @@ public class AuthorizationTest {
 //               День рождения
         clearAndEnter(By.name("date_of_birth"), "10.10.1990");
 
+//        Выбор страны
+        driver.findElement(By.cssSelector(".select.lk-cv-block__input.lk-cv-block__input_full.js-lk-cv-dependent-master.js-lk-cv-custom-select")).click();
+        driver.findElement(By.cssSelector("button[title='Россия']")).click();
+        cityWaiters = new Waiters(driver,1);
+        WebElement cityDropdownElement = driver.findElement(By.cssSelector(".select.lk-cv-block__input.lk-cv-block__input_full.js-lk-cv-dependent-slave-city.js-lk-cv-custom-select"));
+        cityWaiters.waitForCondition(ExpectedConditions.attributeToBe(cityDropdownElement,"disabled","disabled"));
+        cityWaiters.waitForCondition(ExpectedConditions.not(ExpectedConditions.attributeToBe(cityDropdownElement,"disabled","disabled")));
+
 //        Выбор города
-        driver.findElement(By.cssSelector(".select.lk-cv-block__input.lk-cv-block__input_full.js-lk-cv-dependent-slave-city.js-lk-cv-custom-select")).click();
+        cityDropdownElement.click();
         driver.findElement(By.xpath("//button[@data-value='61']")).click();
 
 //        Уровень английского
@@ -252,8 +266,8 @@ public class AuthorizationTest {
         Assertions.assertTrue(driver.findElement(By.xpath("//input[@title='Полный день']")).isSelected(), "Полный день не совпадает");
         Assertions.assertTrue(driver.findElement(By.xpath("//input[@title = 'Гибкий график']")).isSelected(), "Гибкий график не совпадает");
         Assertions.assertTrue(driver.findElement(By.xpath("//input[@title = 'Удаленно']")).isSelected(), "Удаленно не совпадает");
-        Assertions.assertEquals("diveroj856@htoal.com", driver.findElement(By.xpath("//input[contains(@name,'email')]")).getAttribute("value"), "Email не совпадает");
-        Assertions.assertEquals("diveroj856@htoal.com", driver.findElement(By.xpath("//input[contains(@name,'email')]")).getAttribute("value"), "Email не совпадает");
+        Assertions.assertEquals("yadaci9405@othao.com", driver.findElement(By.xpath("//input[contains(@name,'email')]")).getAttribute("value"), "Email не совпадает");
+        Assertions.assertEquals("yadaci9405@othao.com", driver.findElement(By.xpath("//input[contains(@name,'email')]")).getAttribute("value"), "Email не совпадает");
 
         Assertions.assertTrue(
                 "https://vk.com/kulikova_alex".equals(driver.findElement(By.id("id_contact-0-value")).getAttribute("value")) ||
