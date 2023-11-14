@@ -1,9 +1,10 @@
 package auth;
 
+import data.BrowserData;
+import exception.BrowserNotSupportedException;
 import factory.WebDriverFactory;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -12,22 +13,28 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import waiters.Waiters;
+
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 
 
 public class AuthorizationTest {
     private final String BASE_URL = System.getProperty("base.url", "https://otus.ru");
-    private final String LOGIN = System.getProperty("login");
-    private final String PASSWORD = System.getProperty("password");
+//    private final String LOGIN = System.getProperty("login");
+//    private final String PASSWORD = System.getProperty("password");
 
 //mvn clean test  -Dlogin="yadaci9405@othao.com" -Dpassword=!Yadaci9405
-//    private String LOGIN = "yadaci9405@othao.com";
-//    private String PASSWORD = "!Yadaci9405";
+    private String LOGIN = "yadaci9405@othao.com";
+    private String PASSWORD = "!Yadaci9405";
     private WebDriver driver;
     private Actions actions;
     private Waiters waiters;
     private Waiters cityWaiters;
-    private final Logger log = LogManager.getLogger(AuthorizationTest.class);
+    private final LocalDate expectedDate = LocalDate.of(1990, Month.OCTOBER,10);
+
+    public org.apache.logging.log4j.Logger log = LogManager.getLogger(helper.Logger.class);
 
     @BeforeAll
     public static void setup() {
@@ -35,8 +42,9 @@ public class AuthorizationTest {
     }
 
     @BeforeEach
-    public void start() {
-        this.driver = new WebDriverFactory().create();
+    public void start() throws BrowserNotSupportedException {
+
+        this.driver = new WebDriverFactory().create(BrowserData.CHROME);
         driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
         log.info("Открытие Chrome");
         this.waiters = new Waiters(driver);
@@ -51,7 +59,7 @@ public class AuthorizationTest {
     }
 
     @Test
-    public void authorizationTest() {
+    public void authorizationTest() throws BrowserNotSupportedException {
 //        Открыть https://otus.ru
         driver.get(BASE_URL + "/");
 //        Авторизоваться на сайте
@@ -81,13 +89,7 @@ public class AuthorizationTest {
 
     private void loginInOtus() {
         waiters.waitElementVisible(By.cssSelector(".sc-mrx253-0.enxKCy.sc-945rct-0.iOoJwQ"));
-        driver.findElement(By.cssSelector(".sc-mrx253-0.enxKCy.sc-945rct-0.iOoJwQ")).click();
-        driver.findElement(By.cssSelector(".hGvqzc > .sc-1ij08sq-0")).click();
-        clearAndEnter(By.xpath("//input[contains(@name,'email')]"), LOGIN);
-        driver.findElement(By.cssSelector(".sc-177u1yy-0")).click();
-        clearAndEnter(By.cssSelector("input[type=\"password\"]"), PASSWORD);
-        driver.findElement(By.xpath("//div[contains(text(),'Войти')]")).click();
-        log.info("Авторизация на сайте");
+
     }
 
     private void clearAndEnter(By by, String text) {
@@ -125,7 +127,8 @@ public class AuthorizationTest {
         clearAndEnter(By.id("id_blog_name"), "Sandre");
 
 //               День рождения
-        clearAndEnter(By.name("date_of_birth"), "10.10.1990");
+        String date = expectedDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        clearAndEnter(By.name("date_of_birth"), date);
 
 //        Выбор страны
         driver.findElement(By.cssSelector(".select.lk-cv-block__input.lk-cv-block__input_full.js-lk-cv-dependent-master.js-lk-cv-custom-select")).click();
@@ -140,7 +143,9 @@ public class AuthorizationTest {
         driver.findElement(By.xpath("//button[@data-value='61']")).click();
 
 //        Уровень английского
-        driver.findElement(By.xpath("//input[@data-title='Уровень знания английского языка']/../..")).click();
+        //input[@data-title='Уровень знания английского языка']/ancestor::label/ancestor::div[contains(@class,'select lk-cv-block__input lk-cv-block__input_full js-lk-cv-custom-select')]
+        driver.findElement(By.xpath("//input[@data-title='Уровень знания английского языка']/ancestor::label/ancestor::div[contains(@class,'select lk-cv-block__input lk-cv-block__input_full js-lk-cv-custom-select')]")).click();
+        //driver.findElement(By.xpath("//input[@data-title='Уровень знания английского языка']/../..")).click();
         driver.findElement(By.xpath("//button[contains(@title,'Начальный уровень (Beginner)')]")).click();
 
 //       Готовность к переезду
@@ -255,7 +260,11 @@ public class AuthorizationTest {
         Assertions.assertEquals("Alexandra", driver.findElement(By.id("id_fname_latin")).getAttribute("value"));
         Assertions.assertEquals("Kulikova", driver.findElement(By.id("id_lname_latin")).getAttribute("value"));
         Assertions.assertEquals("Sandre", driver.findElement(By.id("id_blog_name")).getAttribute("value"));
-        Assertions.assertEquals("10.10.1990", driver.findElement(By.name("date_of_birth")).getAttribute("value"));
+
+        String actual =  driver.findElement(By.name("date_of_birth")).getAttribute("value");
+        LocalDate actualData = LocalDate.parse(actual, DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        Assertions.assertTrue(expectedDate.isEqual(actualData),"Дата рождения не совпадает");
+        //Assertions.assertEquals("10.10.1990", driver.findElement(By.name("date_of_birth")).getAttribute("value"));
         Assertions.assertEquals("Россия", driver.findElement(By.xpath("//button[contains(@title, 'Россия')]"))
                 .getAttribute("title"), "Страна не совпадает");
         Assertions.assertEquals("Астрахань", driver.findElement(By.xpath("//button[contains(@title, 'Астрахань')]"))
