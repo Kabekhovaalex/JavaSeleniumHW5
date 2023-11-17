@@ -11,8 +11,9 @@ public abstract class ProfileStudentConst {
     public final static String BLOG_NAME  = "Sandre";
     public final static LocalDate EXPECTED_DATE = LocalDate.of(1990, Month.OCTOBER,10);
     public final static String LEVEL_LANGUAGE = "Начальный уровень (Beginner)";
-    public final static String CONTACT_VK = "\"https://vk.com/kulikova_alex\"";
+    public final static String CONTACT_VK = "https://vk.com/kulikova_alex";
     public final static String CONTACT_TG = "@Sandre";
     public final static String COMPANY = "Max Factor";
     public final static String POSITION = "Team Lead QA";
+    public final static String GENDER = "f";
 }

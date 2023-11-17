@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 
 
-public class AuthorizationTest {
+public class HomeWork5Test {
     private final String BASE_URL = System.getProperty("base.url", "https://otus.ru");
 //    private final String LOGIN = System.getProperty("login");
 //    private final String PASSWORD = System.getProperty("password");

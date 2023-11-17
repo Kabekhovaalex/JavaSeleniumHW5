@@ -5,7 +5,8 @@ public enum fioData {
     LNAME("lname"),
     FNAME_LATIN("fname_latin"),
     LNAME_LATIN("lname_latin"),
-    BLOG_NAME("blog_name");
+    BLOG_NAME("blog_name"),
+    GENDER ("gender");
 
     private String fioName;
 

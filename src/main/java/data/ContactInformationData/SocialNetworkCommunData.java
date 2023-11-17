@@ -1,8 +1,8 @@
 package data.ContactInformationData;
 
 public enum SocialNetworkCommunData {
-    VK("vk"),
-    TELEGRAM("telegram");
+    VK("contact-0-value"),
+    TELEGRAM("contact-1-value");
 
     private String nameSocialNetworkCommun;
 
