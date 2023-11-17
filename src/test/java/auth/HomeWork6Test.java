@@ -103,9 +103,9 @@ public class HomeWork6Test {
        profilePage.assertField(EnglishLevelData.BEGINNER.getNameEnglishLevel(), (profilePage.setLocator(EnglishLevelData.BEGINNER.getNameEnglishLevel())).getAttribute("title"),
                "Уровень английского не совпадает");
 
-       profilePage.assertField(WorkData.COMPANY.getNameWork(),(profilePage.setSelector(WorkData.COMPANY.getNameWork())).getAttribute("value"),
+       profilePage.assertField(ProfileStudentConst.COMPANY,(profilePage.setSelector(WorkData.COMPANY.getNameWork())).getAttribute("value"),
                "Компания не совпадает");
-       profilePage.assertField(WorkData.JOB.getNameWork(),(profilePage.setSelector(WorkData.JOB.getNameWork())).getAttribute("value"),
+       profilePage.assertField(ProfileStudentConst.POSITION,(profilePage.setSelector(WorkData.JOB.getNameWork())).getAttribute("value"),
                "Должность не совпадает");
 
    }

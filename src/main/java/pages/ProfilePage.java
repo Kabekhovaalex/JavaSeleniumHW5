@@ -202,6 +202,7 @@ public class ProfilePage extends AbsBasePage {
     }
     public void assertField(String actual, String expected, String message) {
         Assertions.assertEquals(expected,actual,message);
+
     }
   public void assertBirthDay(LocalDate date) {
     LocalDate actualData = LocalDate.parse(birthday.getAttribute("value"), DateTimeFormatter.ofPattern("dd.MM.yyyy"));
